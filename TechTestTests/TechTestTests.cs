@@ -132,16 +132,6 @@ namespace TechTestTests
         }
 
         [Fact]
-        public void AddSecond()
-        {
-            string utcNow = DateTime.UtcNow.ToString();
-
-            string result = TechTest.Execute("now()+1s");
-
-            Assert.NotEqual(string.Empty, result);
-        }
-
-        [Fact]
         public void AddSeconds()
         {
             string utcNow = DateTime.UtcNow.ToString();
