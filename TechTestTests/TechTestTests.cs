@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Xunit;
 
@@ -128,6 +129,76 @@ namespace TechTestTests
             TechTest.ParseOperationResult parseOperationResult = TechTest.ParseOperation("now()-1y");
 
             Assert.Equal("y", parseOperationResult.Unit);
+        }
+
+        [Fact]
+        public void AddSecond()
+        {
+            string utcNow = DateTime.UtcNow.ToString();
+
+            string result = TechTest.Execute("now()+1s");
+
+            Assert.NotEqual(string.Empty, result);
+        }
+
+        [Fact]
+        public void AddSeconds()
+        {
+            string utcNow = DateTime.UtcNow.ToString();
+
+            string result = TechTest.Execute("now()+1s");
+
+            Assert.NotEqual(string.Empty, result);
+        }
+
+        [Fact]
+        public void AddMinutes()
+        {
+            string utcNow = DateTime.UtcNow.ToString();
+
+            string result = TechTest.Execute("now()+1m");
+
+            Assert.NotEqual(string.Empty, result);
+        }
+
+        [Fact]
+        public void AddHours()
+        {
+            string utcNow = DateTime.UtcNow.ToString();
+
+            string result = TechTest.Execute("now()+1h");
+
+            Assert.NotEqual(string.Empty, result);
+        }
+
+        [Fact]
+        public void AddDays()
+        {
+            string utcNow = DateTime.UtcNow.ToString();
+
+            string result = TechTest.Execute("now()+1d");
+
+            Assert.NotEqual(string.Empty, result);
+        }
+
+        [Fact]
+        public void AddMonths()
+        {
+            string utcNow = DateTime.UtcNow.ToString();
+
+            string result = TechTest.Execute("now()+1mon");
+
+            Assert.NotEqual(string.Empty, result);
+        }
+
+        [Fact]
+        public void AddYears()
+        {
+            string utcNow = DateTime.UtcNow.ToString();
+
+            string result = TechTest.Execute("now()+1y");
+
+            Assert.NotEqual(string.Empty, result);
         }
     }
 }

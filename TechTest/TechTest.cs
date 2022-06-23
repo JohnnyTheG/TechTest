@@ -41,4 +41,18 @@ public static class TechTest
 
         return parseOperationResult;
     }
+
+    public static string Execute(string operation)
+    {
+        try
+        {
+            ParseOperationResult parseOperationResult = ParseOperation(operation);
+        }
+        catch (InvalidOperationException invalidOperationException)
+        {
+            throw invalidOperationException;
+        }
+
+        return string.Empty;
+    }
 }
