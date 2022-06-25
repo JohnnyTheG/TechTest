@@ -2,11 +2,6 @@
 
 try
 {
-    TechTest.ParseOperationResult parseOperationResult = TechTest.ParseOperation(test);
-
-    Console.WriteLine($"Operator: {parseOperationResult.Operator}");
-    Console.WriteLine($"Count: {parseOperationResult.Count}");
-    Console.WriteLine($"Unit: {parseOperationResult.Unit}");
 }
 catch (TechTest.InvalidOperationException invalidOperationException)
 {

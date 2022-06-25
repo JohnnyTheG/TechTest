@@ -3,27 +3,87 @@
 public static class TechTest
 {
     /// <summary>
-    /// Used to ensure that the operation string is in a supported format.
-    /// </summary>
-    //private static Regex validateFormatRegex = new Regex("(now\\(\\))[+-]\\d+(mon\\.?|[smhdy])", RegexOptions.IgnoreCase);
-
-    /// <summary>
     /// Used validate format and to extract the operator, unit count and unit type from operation strings.
     /// </summary>
     private static Regex parseOperationRegex = new Regex("(now\\(\\))(?<operator>[+-])(?<count>\\d+)(?<unit>(mon\\.?|[smhdy]))", RegexOptions.IgnoreCase);
 
     public class InvalidOperationException : Exception { }
 
-    public struct ParseOperationResult
+    private struct ParseOperationResult
     {
+        public enum OperatorDefinitions
+        {
+            Undefined,
+            Add,
+            Subtract,
+        }
+
+        public OperatorDefinitions OperatorDefintion
+        {
+            get
+            {
+                switch (Operator)
+                {
+                    case "+":
+
+                        return OperatorDefinitions.Add;
+
+                    case "-":
+
+                        return OperatorDefinitions.Subtract;
+
+                    default:
+
+                        return OperatorDefinitions.Undefined;
+                }
+            }
+        }
+
+        public UnitDefinitions UnitDefinition
+        {
+            get
+            {
+                switch (Unit.ToLower())
+                {
+                    case "y":
+
+                        return UnitDefinitions.Years;
+
+                    case "mon":
+
+                        return UnitDefinitions.Months;
+
+                    case "d":
+
+                        return UnitDefinitions.Days;
+
+                    case "h":
+
+                        return UnitDefinitions.Hours;
+
+                    case "m":
+
+                        return UnitDefinitions.Minutes;
+
+                    case "s":
+
+                        return UnitDefinitions.Seconds;
+
+                    default:
+
+                        return UnitDefinitions.Undefined;
+                }
+            }
+        }
+
         public string Operator { get; set; }
 
-        public string Count { get; set; }
+        public int Count { get; set; }
 
         public string Unit { get; set; }
     }
 
-    public static ParseOperationResult ParseOperation(string operation)
+    private static ParseOperationResult ParseOperation(string operation)
     {
         Match operationMatch = parseOperationRegex.Match(operation);
 
@@ -35,7 +95,7 @@ public static class TechTest
         ParseOperationResult parseOperationResult = new ParseOperationResult
         {
             Operator = operationMatch.Groups["operator"].Value,
-            Count = operationMatch.Groups["count"].Value,
+            Count = int.Parse(operationMatch.Groups["count"].Value),
             Unit = operationMatch.Groups["unit"].Value
         };
 
@@ -44,15 +104,44 @@ public static class TechTest
 
     public static string Execute(string operation)
     {
+        UtcUtils.UtcComponents? utcComponents = UtcUtils.UtcNowComponents;
+
+        if (utcComponents == null)
+        {
+            throw new InvalidOperationException();
+        }
+
+        ParseOperationResult parseOperationResult;
+
         try
         {
-            ParseOperationResult parseOperationResult = ParseOperation(operation);
+            parseOperationResult = ParseOperation(operation);
         }
         catch (InvalidOperationException invalidOperationException)
         {
             throw invalidOperationException;
         }
 
-        return string.Empty;
+        switch (parseOperationResult.OperatorDefintion)
+        {
+            case ParseOperationResult.OperatorDefinitions.Add:
+
+                utcComponents.Add(parseOperationResult.UnitDefinition, parseOperationResult.Count);
+
+                break;
+
+            case ParseOperationResult.OperatorDefinitions.Subtract:
+
+                utcComponents.Subtract(parseOperationResult.UnitDefinition, parseOperationResult.Count);
+
+                break;
+
+            default:
+
+                // TODO: New exception for unsupported operation type?
+                throw new InvalidOperationException();
+        }
+
+        return utcComponents.ToString();
     }
 }
