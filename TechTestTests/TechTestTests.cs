@@ -83,13 +83,23 @@ namespace TechTestTests
         [Fact]
         public void AddThirtyOneDaysToJanuary()
         {
-            Assert.True(false);
+            UtcComponents utcComponents = new UtcComponents();
+
+            UtcComponents resultUtcComponents = DateTimeOperation.Execute("now()+31d", utcComponents);
+
+            Assert.Equal(utcComponents.Day, resultUtcComponents.Day);
+            Assert.Equal(utcComponents.Month + 1, resultUtcComponents.Month);
         }
 
         [Fact]
         public void AddThirtyDaysToApril()
         {
-            Assert.True(false);
+            UtcComponents utcComponents = new UtcComponents() { Month = 4 };
+
+            UtcComponents resultUtcComponents = DateTimeOperation.Execute("now()+30d", utcComponents);
+
+            Assert.Equal(utcComponents.Day, resultUtcComponents.Day);
+            Assert.Equal(utcComponents.Month + 1, resultUtcComponents.Month);
         }
 
         [Fact]
