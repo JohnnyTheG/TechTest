@@ -120,7 +120,6 @@ namespace TechTestTests
 
             UtcComponents resultUtcComponents = DateTimeOperation.Execute("now()+28d", utcComponents);
 
-            //Assert.Equal(utcComponents.Day + 1, resultUtcComponents.Day);
             Assert.Equal(29, resultUtcComponents.Day);
             Assert.Equal(utcComponents.Month, resultUtcComponents.Month);
         }

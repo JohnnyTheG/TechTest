@@ -104,9 +104,9 @@ namespace TechTest
         {
             UtcComponents utcNowComponents = UtcUtils.UtcNowComponents;
 
-            Execute(operation, utcNowComponents);
+            UtcComponents resultUtcComponents = Execute(operation, utcNowComponents);
 
-            return utcNowComponents.ToString();
+            return resultUtcComponents.ToString();
         }
 
         internal static UtcComponents Execute(string operation, UtcComponents utcComponents)

@@ -37,6 +37,8 @@ namespace TechTest
         {
             switch (month)
             {
+                // When days roll backwards, the month will be 0 when checked (then clamped afterwards to 12 (December)).
+                case 0:
                 case 1:
                 case 3:
                 case 5:
@@ -44,6 +46,8 @@ namespace TechTest
                 case 8:
                 case 10:
                 case 12:
+                // When days roll over, the month will be 13 when checked (then clamped afterwards to 1 (January)).
+                case 13:
                     return 31;
                 case 4:
                 case 6:
@@ -117,28 +121,6 @@ namespace TechTest
             }
         }
 
-        private int GetCountInOneWholeUnit(UnitDefinitions unitDefinition)
-        {
-            switch (unitDefinition)
-            {
-                case UnitDefinitions.Years:
-                    return int.MaxValue;
-                case UnitDefinitions.Months:
-                    return 12;
-                case UnitDefinitions.Days:
-                    return GetMaxDaysForMonth(Month, Year);
-                case UnitDefinitions.Hours:
-                    return 24;
-                case UnitDefinitions.Minutes:
-                case UnitDefinitions.Seconds:
-                    return 60;
-                case UnitDefinitions.Milliseconds:
-                    return 1000;
-                default:
-                    throw new Exception();
-            }
-        }
-
         public void Add(UnitDefinitions unitDefinition, int count)
         {
             ProcessOperation(OperatorDefinitions.Add, unitDefinition, count);
@@ -168,7 +150,13 @@ namespace TechTest
                         break;
                 }
 
-                ClampValues(unitDefinition);
+                foreach (UnitDefinitions unit in Enum.GetValues(typeof(UnitDefinitions)))
+                {
+                    if (unit != UnitDefinitions.Undefined)
+                    {
+                        ClampValues(unit);
+                    }
+                }
             }
         }
 
@@ -176,42 +164,28 @@ namespace TechTest
         {
             int minValue = GetMinValue(unitDefinition);
             int maxValue = GetMaxValue(unitDefinition);
-            int totalUnits = GetCountInOneWholeUnit(unitDefinition);
 
-            switch (unitDefinition)
+            if (values[unitDefinition] > maxValue)
             {
-                case UnitDefinitions.Years:
-                case UnitDefinitions.Months:
-                case UnitDefinitions.Days:
-                case UnitDefinitions.Hours:
-                case UnitDefinitions.Minutes:
-                case UnitDefinitions.Seconds:
-                case UnitDefinitions.Milliseconds:
+                values[unitDefinition] = minValue;
 
-                    if (values[unitDefinition] > maxValue)
-                    {
-                        if (unitDefinition != UnitDefinitions.Years)
-                        {
-                            UnitDefinitions parentUnitDefinition = (UnitDefinitions)((int)unitDefinition + 1);
+                if (unitDefinition != UnitDefinitions.Years)
+                {
+                    UnitDefinitions parentUnitDefinition = (UnitDefinitions)((int)unitDefinition + 1);
 
-                            values[parentUnitDefinition] += values[unitDefinition] / totalUnits;
-                        }
+                    values[parentUnitDefinition] += 1;
+                }
+            }
+            else if (values[unitDefinition] < minValue)
+            {
+                values[unitDefinition] = maxValue;
 
-                        values[unitDefinition] = minValue;
-                    }
-                    else if (values[unitDefinition] < minValue)
-                    {
-                        if (unitDefinition != UnitDefinitions.Years)
-                        {
-                            UnitDefinitions parentUnitDefinition = (UnitDefinitions)((int)unitDefinition + 1);
+                if (unitDefinition != UnitDefinitions.Years)
+                {
+                    UnitDefinitions parentUnitDefinition = (UnitDefinitions)((int)unitDefinition + 1);
 
-                            values[parentUnitDefinition] -= values[unitDefinition] / totalUnits;
-                        }
-
-                        values[unitDefinition] = maxValue;
-                    }
-
-                    break;
+                    values[parentUnitDefinition] -= 1;
+                }
             }
         }
 
@@ -222,7 +196,8 @@ namespace TechTest
 
         public object Clone()
         {
-            return new UtcComponents {
+            return new UtcComponents
+            {
                 Year = Year,
                 Month = Month,
                 Day = Day,
