@@ -178,26 +178,41 @@ namespace TechTest
             int maxValue = GetMaxValue(unitDefinition);
             int totalUnits = GetCountInOneWholeUnit(unitDefinition);
 
-            if (values[unitDefinition] >= maxValue)
+            switch (unitDefinition)
             {
-                if (unitDefinition != UnitDefinitions.Years)
-                {
-                    UnitDefinitions parentUnitDefinition = (UnitDefinitions)((int)unitDefinition + 1);
+                case UnitDefinitions.Years:
+                case UnitDefinitions.Months:
+                case UnitDefinitions.Days:
+                case UnitDefinitions.Hours:
+                case UnitDefinitions.Minutes:
+                case UnitDefinitions.Seconds:
+                case UnitDefinitions.Milliseconds:
 
-                    values[parentUnitDefinition] += values[unitDefinition] / totalUnits;
-                }
+                    if (values[unitDefinition] > maxValue)
+                    {
+                        if (unitDefinition != UnitDefinitions.Years)
+                        {
+                            UnitDefinitions parentUnitDefinition = (UnitDefinitions)((int)unitDefinition + 1);
+
+                            values[parentUnitDefinition] += values[unitDefinition] / totalUnits;
+                        }
+
+                        values[unitDefinition] = minValue;
+                    }
+                    else if (values[unitDefinition] < minValue)
+                    {
+                        if (unitDefinition != UnitDefinitions.Years)
+                        {
+                            UnitDefinitions parentUnitDefinition = (UnitDefinitions)((int)unitDefinition + 1);
+
+                            values[parentUnitDefinition] -= values[unitDefinition] / totalUnits;
+                        }
+
+                        values[unitDefinition] = maxValue;
+                    }
+
+                    break;
             }
-            else if (values[unitDefinition] < minValue)
-            {
-                if (unitDefinition != UnitDefinitions.Years)
-                {
-                    UnitDefinitions parentUnitDefinition = (UnitDefinitions)((int)unitDefinition + 1);
-
-                    values[parentUnitDefinition] -= values[unitDefinition] / totalUnits;
-                }
-            }
-
-            values[unitDefinition] %= totalUnits;
         }
 
         public override string ToString()

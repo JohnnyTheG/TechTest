@@ -105,19 +105,36 @@ namespace TechTestTests
         [Fact]
         public void AddTwentyEightDaysToNonLeapFebruary()
         {
-            Assert.True(false);
+            UtcComponents utcComponents = new UtcComponents() { Month = 2, Year = 2022 };
+
+            UtcComponents resultUtcComponents = DateTimeOperation.Execute("now()+28d", utcComponents);
+
+            Assert.Equal(utcComponents.Day, resultUtcComponents.Day);
+            Assert.Equal(utcComponents.Month + 1, resultUtcComponents.Month);
         }
 
         [Fact]
         public void AddTwentyEightDaysToLeapFebruary()
         {
-            Assert.True(false);
+            UtcComponents utcComponents = new UtcComponents() { Month = 2, Year = 2020 };
+
+            UtcComponents resultUtcComponents = DateTimeOperation.Execute("now()+28d", utcComponents);
+
+            //Assert.Equal(utcComponents.Day + 1, resultUtcComponents.Day);
+            Assert.Equal(29, resultUtcComponents.Day);
+            Assert.Equal(utcComponents.Month, resultUtcComponents.Month);
         }
 
         [Fact]
         public void AddTwentyNineDaysToLeapFebruary()
         {
-            Assert.True(false);
+            UtcComponents utcComponents = new UtcComponents() { Month = 2, Year = 2020 };
+
+            UtcComponents resultUtcComponents = DateTimeOperation.Execute("now()+29d", utcComponents);
+
+            //Assert.Equal(utcComponents.Day + 1, resultUtcComponents.Day);
+            Assert.Equal(utcComponents.Day, resultUtcComponents.Day);
+            Assert.Equal(utcComponents.Month + 1, resultUtcComponents.Month);
         }
 
         [Fact]
