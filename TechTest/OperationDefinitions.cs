@@ -6,15 +6,10 @@ using System.Threading.Tasks;
 
 namespace TechTest
 {
-    public enum UnitDefinitions
+    public enum OperatorDefinitions
     {
         Undefined,
-        Milliseconds,
-        Seconds,
-        Minutes,
-        Hours,
-        Days,
-        Months,
-        Years,
+        Add,
+        Subtract,
     }
 }
