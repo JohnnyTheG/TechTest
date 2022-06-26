@@ -1,4 +1,7 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
+
+[assembly: InternalsVisibleTo("TechTestTests")]
 
 namespace TechTest
 {
@@ -97,15 +100,20 @@ namespace TechTest
             return parseOperationResult;
         }
 
-        public static UtcComponents ExecuteUtcNow(string operation)
+        public static string Execute(string operation)
         {
             UtcComponents utcNowComponents = UtcUtils.UtcNowComponents;
 
-            return Execute(operation, utcNowComponents);
+            Execute(operation, utcNowComponents);
+
+            return utcNowComponents.ToString();
         }
 
-        public static UtcComponents Execute(string operation, UtcComponents utcComponents)
+        internal static UtcComponents Execute(string operation, UtcComponents utcComponents)
         {
+            // Clone to prevent altering passed utc components.
+            UtcComponents returnUtcComponents = (UtcComponents)utcComponents.Clone();
+
             ParseOperationResult parseOperationResult;
 
             try
@@ -121,13 +129,13 @@ namespace TechTest
             {
                 case OperatorDefinitions.Add:
 
-                    utcComponents.Add(parseOperationResult.UnitDefinition, parseOperationResult.Count);
+                    returnUtcComponents.Add(parseOperationResult.UnitDefinition, parseOperationResult.Count);
 
                     break;
 
                 case OperatorDefinitions.Subtract:
 
-                    utcComponents.Subtract(parseOperationResult.UnitDefinition, parseOperationResult.Count);
+                    returnUtcComponents.Subtract(parseOperationResult.UnitDefinition, parseOperationResult.Count);
 
                     break;
 
@@ -137,13 +145,7 @@ namespace TechTest
                     throw new InvalidOperationException();
             }
 
-            // TODO: Validate results and roll values round if needed.
-
-            return utcComponents;
-        }
-
-        internal static void DoInternal()
-        {
+            return returnUtcComponents;
         }
     }
 }

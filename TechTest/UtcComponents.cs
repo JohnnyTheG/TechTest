@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace TechTest
 {
-    public class UtcComponents
+    public class UtcComponents : ICloneable
     {
         private Dictionary<UnitDefinitions, int> values = new Dictionary<UnitDefinitions, int>
         {
             { UnitDefinitions.Years, 0 },
-            { UnitDefinitions.Months, 0 },
-            { UnitDefinitions.Days, 0 },
+            { UnitDefinitions.Months, 1 },
+            { UnitDefinitions.Days, 1 },
             { UnitDefinitions.Hours, 0 },
             { UnitDefinitions.Minutes, 0 },
             { UnitDefinitions.Seconds, 0 },
@@ -122,7 +122,7 @@ namespace TechTest
             switch (unitDefinition)
             {
                 case UnitDefinitions.Years:
-                    return 12;
+                    return int.MaxValue;
                 case UnitDefinitions.Months:
                     return 12;
                 case UnitDefinitions.Days:
@@ -178,7 +178,7 @@ namespace TechTest
             int maxValue = GetMaxValue(unitDefinition);
             int totalUnits = GetCountInOneWholeUnit(unitDefinition);
 
-            if (values[unitDefinition] > maxValue)
+            if (values[unitDefinition] >= maxValue)
             {
                 if (unitDefinition != UnitDefinitions.Years)
                 {
@@ -187,7 +187,7 @@ namespace TechTest
                     values[parentUnitDefinition] += values[unitDefinition] / totalUnits;
                 }
             }
-            else if (values[unitDefinition] > minValue)
+            else if (values[unitDefinition] < minValue)
             {
                 if (unitDefinition != UnitDefinitions.Years)
                 {
@@ -203,6 +203,19 @@ namespace TechTest
         public override string ToString()
         {
             return $"{Year.ToString("D4")}-{Month.ToString("D2")}-{Day.ToString("D2")}T{Hours.ToString("D2")}:{Minutes.ToString("D2")}:{Seconds.ToString("D2")}.{Milliseconds.ToString("D2")}";
+        }
+
+        public object Clone()
+        {
+            return new UtcComponents {
+                Year = Year,
+                Month = Month,
+                Day = Day,
+                Hours = Hours,
+                Minutes = Minutes,
+                Seconds = Seconds,
+                Milliseconds = Milliseconds,
+            };
         }
     }
 

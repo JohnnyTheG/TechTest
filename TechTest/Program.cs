@@ -4,7 +4,7 @@ string testOperation = "now()-6Y";
 
 try
 {
-    string result = DateTimeOperation.ExecuteUtcNow(testOperation).ToString();
+    string result = DateTimeOperation.Execute(testOperation).ToString();
 
     Console.WriteLine(result);
 }

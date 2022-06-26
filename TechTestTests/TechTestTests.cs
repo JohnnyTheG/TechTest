@@ -8,9 +8,133 @@ namespace TechTestTests
     public class TechTestTests
     {
         [Fact]
-        public void AddSeconds()
+        public void AddOneSecond()
         {
-            
+            UtcComponents utcComponents = new UtcComponents();
+
+            UtcComponents resultUtcComponents = DateTimeOperation.Execute("now()+1s", utcComponents);
+
+            Assert.Equal(utcComponents.Seconds + 1, resultUtcComponents.Seconds);
+        }
+
+        [Fact]
+        public void AddSixtySeconds()
+        {
+            UtcComponents utcComponents = new UtcComponents();
+
+            UtcComponents resultUtcComponents = DateTimeOperation.Execute("now()+60s", utcComponents);
+
+            Assert.Equal(utcComponents.Seconds, resultUtcComponents.Seconds);
+            Assert.Equal(utcComponents.Minutes + 1, resultUtcComponents.Minutes);
+        }
+
+        [Fact]
+        public void AddOneMinute()
+        {
+            UtcComponents utcComponents = new UtcComponents();
+
+            UtcComponents resultUtcComponents = DateTimeOperation.Execute("now()+1m", utcComponents);
+
+            Assert.Equal(utcComponents.Minutes + 1, resultUtcComponents.Minutes);
+        }
+
+        [Fact]
+        public void AddSixtyMinutes()
+        {
+            UtcComponents utcComponents = new UtcComponents();
+
+            UtcComponents resultUtcComponents = DateTimeOperation.Execute("now()+60m", utcComponents);
+
+            Assert.Equal(utcComponents.Minutes, resultUtcComponents.Minutes);
+            Assert.Equal(utcComponents.Hours + 1, resultUtcComponents.Hours);
+        }
+
+        [Fact]
+        public void AddOneHour()
+        {
+            UtcComponents utcComponents = new UtcComponents();
+
+            UtcComponents resultUtcComponents = DateTimeOperation.Execute("now()+1h", utcComponents);
+
+            Assert.Equal(utcComponents.Hours + 1, resultUtcComponents.Hours);
+        }
+
+        [Fact]
+        public void AddTwentyFourHours()
+        {
+            UtcComponents utcComponents = new UtcComponents();
+
+            UtcComponents resultUtcComponents = DateTimeOperation.Execute("now()+24h", utcComponents);
+
+            Assert.Equal(utcComponents.Hours, resultUtcComponents.Hours);
+            Assert.Equal(utcComponents.Day + 1, resultUtcComponents.Day);
+        }
+
+        [Fact]
+        public void AddOneDay()
+        {
+            UtcComponents utcComponents = new UtcComponents();
+
+            UtcComponents resultUtcComponents = DateTimeOperation.Execute("now()+1d", utcComponents);
+
+            Assert.Equal(utcComponents.Day + 1, resultUtcComponents.Day);
+        }
+
+        [Fact]
+        public void AddThirtyOneDaysToJanuary()
+        {
+
+        }
+
+        [Fact]
+        public void AddThirtyDaysToApril()
+        {
+        }
+
+        [Fact]
+        public void AddTwentyEightDaysToNonLeapFebruary()
+        {
+        }
+
+        [Fact]
+        public void AddTwentyEightDaysToLeapFebruary()
+        {
+        }
+
+        [Fact]
+        public void AddTwentyNineDaysToLeapFebruary()
+        {
+        }
+
+        [Fact]
+        public void AddOneMonth()
+        {
+            UtcComponents utcComponents = new UtcComponents();
+
+            UtcComponents resultUtcComponents = DateTimeOperation.Execute("now()+1mon", utcComponents);
+
+            Assert.Equal(utcComponents.Month + 1, resultUtcComponents.Month);
+        }
+
+        [Fact]
+        public void AddTwelveMonths()
+        {
+            UtcComponents utcComponents = new UtcComponents();
+
+            UtcComponents resultUtcComponents = DateTimeOperation.Execute("now()+12mon", utcComponents);
+
+            Assert.Equal(utcComponents.Month, resultUtcComponents.Month);
+            Assert.Equal(utcComponents.Year + 1, resultUtcComponents.Year);
+        }
+
+        [Fact]
+        public void AddOneYear()
+        {
+            UtcComponents utcComponents = new UtcComponents();
+
+            UtcComponents resultUtcComponents = DateTimeOperation.Execute("now()+1y", utcComponents);
+
+            Assert.Equal(utcComponents.Year + 1, resultUtcComponents.Year);
         }
 
         //[Fact]
