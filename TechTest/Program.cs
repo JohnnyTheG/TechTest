@@ -1,6 +1,6 @@
 ﻿using TechTest;
 
-string testOperation = "now()+5000mon";
+string testOperation = "now()-1y@mon";
 
 try
 {

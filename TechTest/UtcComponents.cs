@@ -189,9 +189,17 @@ namespace TechTest
             }
         }
 
+        public void Snap(IEnumerable<UnitDefinitions> snappedUnitDefinitions)
+        {
+            foreach (UnitDefinitions snappedUnitDefinition in snappedUnitDefinitions)
+            {
+                values[snappedUnitDefinition] = GetMinValue(snappedUnitDefinition);
+            }
+        }
+
         public override string ToString()
         {
-            return $"{Year.ToString("D4")}-{Month.ToString("D2")}-{Day.ToString("D2")}T{Hours.ToString("D2")}:{Minutes.ToString("D2")}:{Seconds.ToString("D2")}.{Milliseconds.ToString("D2")}";
+            return $"{Year.ToString("D4")}-{Month.ToString("D2")}-{Day.ToString("D2")}T{Hours.ToString("D2")}:{Minutes.ToString("D2")}:{Seconds.ToString("D2")}.{Milliseconds.ToString("D2")}Z";
         }
 
         public object Clone()

@@ -10,7 +10,7 @@ namespace TechTest
         /// <summary>
         /// Used validate format and to extract the operator, unit count and unit type from operation strings.
         /// </summary>
-        private static Regex parseOperationRegex = new Regex("(now\\(\\))(?<operator>[+-])(?<count>\\d+)(?<unit>(mon\\.?|[smhdy]))", RegexOptions.IgnoreCase);
+        private static Regex parseOperationRegex = new Regex("(now\\(\\))(?<operator>[+-])(?<count>\\d+)(?<unit>(mon\\.?|[smhdy]))(@)?(?<snap>((mon\\.?|[smhdy])?))", RegexOptions.IgnoreCase);
 
         public class InvalidOperationException : Exception { }
 
@@ -36,49 +36,54 @@ namespace TechTest
                     }
                 }
             }
-
-            public UnitDefinitions UnitDefinition
-            {
-                get
-                {
-                    switch (Unit.ToLower())
-                    {
-                        case "y":
-
-                            return UnitDefinitions.Years;
-
-                        case "mon":
-
-                            return UnitDefinitions.Months;
-
-                        case "d":
-
-                            return UnitDefinitions.Days;
-
-                        case "h":
-
-                            return UnitDefinitions.Hours;
-
-                        case "m":
-
-                            return UnitDefinitions.Minutes;
-
-                        case "s":
-
-                            return UnitDefinitions.Seconds;
-
-                        default:
-
-                            return UnitDefinitions.Undefined;
-                    }
-                }
-            }
-
+            
             public string Operator { get; set; }
 
             public int Count { get; set; }
 
             public string Unit { get; set; }
+
+            public string Snap { get; set; }
+
+            public bool ShouldSnap { get { return Snap != string.Empty; } }
+
+            public UnitDefinitions UnitDefinition { get { return ParseUnitDefinition(Unit); } }
+
+            public UnitDefinitions SnapUnitDefinition { get { return ParseUnitDefinition(Snap); } }
+
+            private UnitDefinitions ParseUnitDefinition(string unit)
+            {
+                switch (unit.ToLower())
+                {
+                    case "y":
+
+                        return UnitDefinitions.Years;
+
+                    case "mon":
+
+                        return UnitDefinitions.Months;
+
+                    case "d":
+
+                        return UnitDefinitions.Days;
+
+                    case "h":
+
+                        return UnitDefinitions.Hours;
+
+                    case "m":
+
+                        return UnitDefinitions.Minutes;
+
+                    case "s":
+
+                        return UnitDefinitions.Seconds;
+
+                    default:
+
+                        return UnitDefinitions.Undefined;
+                }
+            }
         }
 
         private static ParseOperationResult ParseOperation(string operation)
@@ -94,7 +99,8 @@ namespace TechTest
             {
                 Operator = operationMatch.Groups["operator"].Value,
                 Count = int.Parse(operationMatch.Groups["count"].Value),
-                Unit = operationMatch.Groups["unit"].Value
+                Unit = operationMatch.Groups["unit"].Value,
+                Snap = operationMatch.Groups["snap"].Value,
             };
 
             return parseOperationResult;
@@ -143,6 +149,15 @@ namespace TechTest
 
                     // TODO: New exception for unsupported operation type?
                     throw new InvalidOperationException();
+            }
+
+            if (parseOperationResult.ShouldSnap)
+            {
+                UnitDefinitions snapUnitDefinition = parseOperationResult.SnapUnitDefinition;
+
+                IEnumerable<UnitDefinitions> snappedUnitDefinitions = new List<UnitDefinitions>(Enum.GetValues(typeof(UnitDefinitions)).Cast<UnitDefinitions>()).Where(unitDefinition => unitDefinition != UnitDefinitions.Undefined && (int)unitDefinition < (int)snapUnitDefinition);
+
+                returnUtcComponents.Snap(snappedUnitDefinitions);
             }
 
             return returnUtcComponents;

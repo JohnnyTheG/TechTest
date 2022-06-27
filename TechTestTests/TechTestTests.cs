@@ -167,104 +167,54 @@ namespace TechTestTests
             Assert.Equal(utcComponents.Year + 1, resultUtcComponents.Year);
         }
 
-        //[Fact]
-        //public void AddSeconds()
-        //{
-        //    UtcComponents utcComponents = UtcUtils.UtcNowComponents;
+        [Fact]
+        public void ExampleAddOneDay()
+        {
+            UtcComponents utcComponents = new UtcComponents() { Year = 2022, Day = 8, Hours = 9 };
 
-        //    UtcComponents resultUtcComponents = DateTimeOperation.Execute("now()+1s");
+            UtcComponents resultUtcComponents = DateTimeOperation.Execute("now()+1d", utcComponents);
 
-        //    Assert.Equal(utcComponents.Seconds + 1, resultUtcComponents.Seconds);
-        //}
+            Assert.Equal("2022-01-09T09:00:00.00Z", resultUtcComponents.ToString());
+        }
 
-        //[Fact]
-        //public void SecondsOverflowsToMinutes()
-        //{
-        //    UtcComponents utcComponents = UtcUtils.UtcNowComponents;
+        [Fact]
+        public void ExampleSubtractOneDay()
+        {
+            UtcComponents utcComponents = new UtcComponents() { Year = 2022, Day = 8, Hours = 9 };
 
-        //    UtcComponents resultUtcComponents = DateTimeOperation.Execute("now()+60s");
+            UtcComponents resultUtcComponents = DateTimeOperation.Execute("now()-1d", utcComponents);
 
-        //    Assert.Equal(utcComponents.Minutes + 1, resultUtcComponents.Minutes);
-        //}
+            Assert.Equal("2022-01-07T09:00:00.00Z", resultUtcComponents.ToString());
+        }
 
-        //[Fact]
-        //public void AddMinutes()
-        //{
-        //    UtcComponents utcComponents = UtcUtils.UtcNowComponents;
+        [Fact]
+        public void ExampleNoOperationAndSnap()
+        {
+            UtcComponents utcComponents = new UtcComponents() { Year = 2022, Day = 8, Hours = 9 };
 
-        //    UtcComponents resultUtcComponents = DateTimeOperation.Execute("now()+1m");
+            UtcComponents resultUtcComponents = DateTimeOperation.Execute("now()@d", utcComponents);
 
-        //    Assert.Equal(utcComponents.Minutes + 1, resultUtcComponents.Minutes);
-        //}
+            Assert.Equal("2022-01-08T00:00:00.00Z", resultUtcComponents.ToString());
+        }
 
-        //[Fact]
-        //public void MinutesRoundsToHours()
-        //{
-        //    UtcComponents utcComponents = UtcUtils.UtcNowComponents;
+        [Fact]
+        public void ExampleOperationAndSnap()
+        {
+            UtcComponents utcComponents = new UtcComponents() { Year = 2022, Day = 8, Hours = 9 };
 
-        //    UtcComponents resultUtcComponents = DateTimeOperation.Execute("now()+60m");
+            UtcComponents resultUtcComponents = DateTimeOperation.Execute("now()-1y@mon", utcComponents);
 
-        //    Assert.Equal(utcComponents.Hours + 1, resultUtcComponents.Hours);
-        //}
+            Assert.Equal("2021-01-01T00:00:00.00Z", resultUtcComponents.ToString());
+        }
 
-        //[Fact]
-        //public void AddHours()
-        //{
-        //    UtcComponents utcComponents = UtcUtils.UtcNowComponents;
+        [Fact]
+        public void ExampleMultipleOperations()
+        {
+            UtcComponents utcComponents = new UtcComponents() { Year = 2022, Day = 8, Hours = 9 };
 
-        //    UtcComponents resultUtcComponents = DateTimeOperation.Execute("now()+1h");
+            UtcComponents resultUtcComponents = DateTimeOperation.Execute("now()+10d+12h", utcComponents);
 
-        //    Assert.Equal(utcComponents.Hours + 1, resultUtcComponents.Hours);
-        //}
-
-        //[Fact]
-        //public void HoursRoundsToDays()
-        //{
-        //    UtcComponents utcComponents = UtcUtils.UtcNowComponents;
-
-        //    UtcComponents resultUtcComponents = DateTimeOperation.Execute("now()+24h");
-
-        //    Assert.True(utcComponents.Day + 1 == resultUtcComponents.Day || utcComponents.Month + 1 == resultUtcComponents.Month && resultUtcComponents.Day == 1);
-        //}
-
-        //[Fact]
-        //public void AddDays()
-        //{
-        //    UtcComponents utcComponents = UtcUtils.UtcNowComponents;
-
-        //    UtcComponents resultUtcComponents = DateTimeOperation.Execute("now()+1d");
-
-        //    Assert.Equal(utcComponents.Day + 1, resultUtcComponents.Day);
-        //}
-
-        //[Fact]
-        //public void DaysRoundsToMonths()
-        //{
-        //    UtcComponents utcComponents = UtcUtils.UtcNowComponents;
-
-        //    UtcComponents resultUtcComponents = DateTimeOperation.Execute("now()+31d");
-
-        //    //Assert.True(utcComponents
-        //}
-
-        //[Fact]
-        //public void AddMonths()
-        //{
-        //    UtcComponents utcComponents = UtcUtils.UtcNowComponents;
-
-        //    UtcComponents resultUtcComponents = DateTimeOperation.Execute("now()+1mon");
-
-        //    Assert.True((utcComponents.Month + 1 == resultUtcComponents.Month) || (utcComponents.Year + 1 == resultUtcComponents.Year && resultUtcComponents.Month == 1));
-        //}
-
-        //[Fact]
-        //public void AddYears()
-        //{
-        //    UtcComponents utcComponents = UtcUtils.UtcNowComponents;
-
-        //    UtcComponents resultUtcComponents = DateTimeOperation.Execute("now()+1y");
-
-        //    Assert.Equal(utcComponents.Year + 1, resultUtcComponents.Year);
-        //}
+            Assert.Equal("2022-01-18T21:00:00.00Z", resultUtcComponents.ToString());
+        }
     }
 }
