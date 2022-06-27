@@ -10,12 +10,14 @@ namespace TechTest
         /// <summary>
         /// Used validate format and to extract the operator, unit count and unit type from operation strings.
         /// </summary>
-        private static Regex parseOperationRegex = new Regex("(now\\(\\))(?<operator>[+-])(?<count>\\d+)(?<unit>(mon\\.?|[smhdy]))(@)?(?<snap>((mon\\.?|[smhdy])?))", RegexOptions.IgnoreCase);
+        private static Regex parseOperationRegex = new Regex("(now\\(\\))(?<operator>[+-])?(?<count>\\d+)?(?<unit>(mon\\.?|[smhdy]))?(@)?(?<snap>((mon\\.?|[smhdy])))?", RegexOptions.IgnoreCase);
 
         public class InvalidOperationException : Exception { }
 
         private struct ParseOperationResult
         {
+            public bool ShouldPerformOperation { get { return !string.IsNullOrEmpty(Operator); } }
+
             public OperatorDefinitions OperatorDefintion
             {
                 get
@@ -45,7 +47,7 @@ namespace TechTest
 
             public string Snap { get; set; }
 
-            public bool ShouldSnap { get { return Snap != string.Empty; } }
+            public bool ShouldSnap { get { return !string.IsNullOrEmpty(Snap); } }
 
             public UnitDefinitions UnitDefinition { get { return ParseUnitDefinition(Unit); } }
 
@@ -98,7 +100,7 @@ namespace TechTest
             ParseOperationResult parseOperationResult = new ParseOperationResult
             {
                 Operator = operationMatch.Groups["operator"].Value,
-                Count = int.Parse(operationMatch.Groups["count"].Value),
+                Count = string.IsNullOrEmpty(operationMatch.Groups["count"].Value) ? 0 : int.Parse(operationMatch.Groups["count"].Value),
                 Unit = operationMatch.Groups["unit"].Value,
                 Snap = operationMatch.Groups["snap"].Value,
             };
@@ -131,24 +133,27 @@ namespace TechTest
                 throw invalidOperationException;
             }
 
-            switch (parseOperationResult.OperatorDefintion)
+            if (parseOperationResult.ShouldPerformOperation)
             {
-                case OperatorDefinitions.Add:
+                switch (parseOperationResult.OperatorDefintion)
+                {
+                    case OperatorDefinitions.Add:
 
-                    returnUtcComponents.Add(parseOperationResult.UnitDefinition, parseOperationResult.Count);
+                        returnUtcComponents.Add(parseOperationResult.UnitDefinition, parseOperationResult.Count);
 
-                    break;
+                        break;
 
-                case OperatorDefinitions.Subtract:
+                    case OperatorDefinitions.Subtract:
 
-                    returnUtcComponents.Subtract(parseOperationResult.UnitDefinition, parseOperationResult.Count);
+                        returnUtcComponents.Subtract(parseOperationResult.UnitDefinition, parseOperationResult.Count);
 
-                    break;
+                        break;
 
-                default:
+                    default:
 
-                    // TODO: New exception for unsupported operation type?
-                    throw new InvalidOperationException();
+                        // TODO: New exception for unsupported operation type?
+                        throw new InvalidOperationException();
+                }
             }
 
             if (parseOperationResult.ShouldSnap)
