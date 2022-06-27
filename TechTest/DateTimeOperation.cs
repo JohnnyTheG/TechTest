@@ -10,100 +10,99 @@ namespace TechTest
         /// <summary>
         /// Used validate format and to extract the operator, unit count and unit type from operation strings.
         /// </summary>
-        private static Regex parseOperationRegex = new Regex("(now\\(\\))(?<operator>[+-])?(?<count>\\d+)?(?<unit>(mon\\.?|[smhdy]))?(@)?(?<snap>((mon\\.?|[smhdy])))?", RegexOptions.IgnoreCase);
+        //private static Regex parseOperationRegex = new Regex("(now\\(\\))((?<operations>(?<operator>[+-])(?<count>\\d+)(?<unit>(mon\\.?|[smhdy])))+)?(@)?(?<snap>((mon\\.?|[smhdy])))?", RegexOptions.IgnoreCase);
+        private static Regex parseAllComponentsRegex = new Regex("(now\\(\\))((?<operations>[+-]\\d+(mon\\.?|[smhdy]))+)?(@)?(?<snap>((mon\\.?|[smhdy])))?", RegexOptions.IgnoreCase);
+        private static Regex parseOperationRegex = new Regex("(?<operator>[+-])(?<count>\\d+)(?<unit>(mon\\.?|[smhdy]))", RegexOptions.IgnoreCase);
 
         public class InvalidOperationException : Exception { }
 
         private struct ParseOperationResult
         {
-            public bool ShouldPerformOperation { get { return !string.IsNullOrEmpty(Operator); } }
+            public bool ShouldPerformOperation { get { return Operations.Count > 0; } }
 
-            public OperatorDefinitions OperatorDefintion
+            public struct Operation
             {
-                get
+                public string Operator { get; set; }
+
+                public int Count { get; set; }
+
+                public string Unit { get; set; }
+
+                public OperatorDefinitions OperatorDefintion
                 {
-                    switch (Operator)
+                    get
                     {
-                        case "+":
+                        switch (Operator)
+                        {
+                            case "+":
 
-                            return OperatorDefinitions.Add;
+                                return OperatorDefinitions.Add;
 
-                        case "-":
+                            case "-":
 
-                            return OperatorDefinitions.Subtract;
+                                return OperatorDefinitions.Subtract;
 
-                        default:
+                            default:
 
-                            return OperatorDefinitions.Undefined;
+                                return OperatorDefinitions.Undefined;
+                        }
                     }
                 }
+
+                public UnitDefinitions UnitDefinition { get { return DateTimeOperationUtils.ParseUnitDefinition(Unit); } }
             }
-            
-            public string Operator { get; set; }
 
-            public int Count { get; set; }
+            //public string Operator { get; set; }
 
-            public string Unit { get; set; }
+            //public int Count { get; set; }
+
+            //public string Unit { get; set; }
+
+            public List<Operation> Operations { get; set; }
 
             public string Snap { get; set; }
 
             public bool ShouldSnap { get { return !string.IsNullOrEmpty(Snap); } }
 
-            public UnitDefinitions UnitDefinition { get { return ParseUnitDefinition(Unit); } }
-
-            public UnitDefinitions SnapUnitDefinition { get { return ParseUnitDefinition(Snap); } }
-
-            private UnitDefinitions ParseUnitDefinition(string unit)
-            {
-                switch (unit.ToLower())
-                {
-                    case "y":
-
-                        return UnitDefinitions.Years;
-
-                    case "mon":
-
-                        return UnitDefinitions.Months;
-
-                    case "d":
-
-                        return UnitDefinitions.Days;
-
-                    case "h":
-
-                        return UnitDefinitions.Hours;
-
-                    case "m":
-
-                        return UnitDefinitions.Minutes;
-
-                    case "s":
-
-                        return UnitDefinitions.Seconds;
-
-                    default:
-
-                        return UnitDefinitions.Undefined;
-                }
-            }
+            public UnitDefinitions SnapUnitDefinition { get { return DateTimeOperationUtils.ParseUnitDefinition(Snap); } }
         }
 
-        private static ParseOperationResult ParseOperation(string operation)
+        private static ParseOperationResult ParseOperation(string allComponents)
         {
-            Match operationMatch = parseOperationRegex.Match(operation);
+            Match allComponentsMatch = parseAllComponentsRegex.Match(allComponents);
 
-            if (!operationMatch.Success)
+            if (!allComponentsMatch.Success)
             {
                 throw new InvalidOperationException();
             }
 
             ParseOperationResult parseOperationResult = new ParseOperationResult
             {
-                Operator = operationMatch.Groups["operator"].Value,
-                Count = string.IsNullOrEmpty(operationMatch.Groups["count"].Value) ? 0 : int.Parse(operationMatch.Groups["count"].Value),
-                Unit = operationMatch.Groups["unit"].Value,
-                Snap = operationMatch.Groups["snap"].Value,
+                //Operator = operationMatch.Groups["operator"].Value,
+                //Count = string.IsNullOrEmpty(operationMatch.Groups["count"].Value) ? 0 : int.Parse(operationMatch.Groups["count"].Value),
+                //Unit = operationMatch.Groups["unit"].Value,
+                Operations = new List<ParseOperationResult.Operation>(),
+                Snap = allComponentsMatch.Groups["snap"].Value,
             };
+
+            foreach (Capture capture in allComponentsMatch.Groups["operations"].Captures)
+            {
+                Match operationMatch = parseOperationRegex.Match(capture.Value);
+
+                if (!operationMatch.Success)
+                {
+                    throw new InvalidOperationException();
+                }
+
+                ParseOperationResult.Operation operation = new ParseOperationResult.Operation()
+                {
+                    Operator = operationMatch.Groups["operator"].Value,
+                    Count = string.IsNullOrEmpty(operationMatch.Groups["count"].Value) ? 0 : int.Parse(operationMatch.Groups["count"].Value),
+                    Unit = operationMatch.Groups["unit"].Value,
+                };
+
+                parseOperationResult.Operations.Add(operation);
+            }
 
             return parseOperationResult;
         }
@@ -135,24 +134,27 @@ namespace TechTest
 
             if (parseOperationResult.ShouldPerformOperation)
             {
-                switch (parseOperationResult.OperatorDefintion)
+                foreach (ParseOperationResult.Operation parsedOperation in parseOperationResult.Operations)
                 {
-                    case OperatorDefinitions.Add:
+                    switch (parsedOperation.OperatorDefintion)
+                    {
+                        case OperatorDefinitions.Add:
 
-                        returnUtcComponents.Add(parseOperationResult.UnitDefinition, parseOperationResult.Count);
+                            returnUtcComponents.Add(parsedOperation.UnitDefinition, parsedOperation.Count);
 
-                        break;
+                            break;
 
-                    case OperatorDefinitions.Subtract:
+                        case OperatorDefinitions.Subtract:
 
-                        returnUtcComponents.Subtract(parseOperationResult.UnitDefinition, parseOperationResult.Count);
+                            returnUtcComponents.Subtract(parsedOperation.UnitDefinition, parsedOperation.Count);
 
-                        break;
+                            break;
 
-                    default:
+                        default:
 
-                        // TODO: New exception for unsupported operation type?
-                        throw new InvalidOperationException();
+                            // TODO: New exception for unsupported operation type?
+                            throw new InvalidOperationException();
+                    }
                 }
             }
 
