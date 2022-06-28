@@ -226,5 +226,19 @@ namespace TechTestTests
 
             Assert.Equal("2022-01-18T00:00:00.00Z", resultUtcComponents.ToString());
         }
+
+        [Fact]
+        public void DateTimeMultipleOperations()
+        {
+            DateTime utcNow = DateTime.UtcNow;
+
+            utcNow = utcNow.AddDays(10).AddHours(12);
+
+            string operationResult = DateTimeOperation.Execute("now()+10d+12h");
+
+            string utcNowToString = utcNow.ToString("yyyy-MM-ddTHH:mm:ss.ffZ");
+
+            Assert.Equal(utcNowToString, operationResult);
+        }
     }
 }
