@@ -8,6 +8,11 @@ namespace TechTest
 {
     public static class DateTimeOperationUtils
     {
+        /// <summary>
+        /// Get an enumerated representation of the specified unit.
+        /// </summary>
+        /// <param name="unit"></param>
+        /// <returns></returns>
         public static UnitDefinitions ParseUnitDefinition(string unit)
         {
             switch (unit.ToLower())
