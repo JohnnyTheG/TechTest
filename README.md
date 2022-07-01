@@ -1,4 +1,4 @@
-# UoY Tech Test
+# Tech Test
 Implementation of string parsing of operations on Utc Now.
 
 ## Usage
