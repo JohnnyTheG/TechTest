@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Xunit;
 using TechTest;
@@ -239,6 +239,28 @@ namespace TechTestTests
             string utcNowToString = utcNow.ToString("yyyy-MM-ddTHH:mm:ss.ffZ");
 
             Assert.Equal(utcNowToString, operationResult);
+        }
+
+        [Fact]
+        public void AddCovidIsolationPeriod()
+        {
+            UtcComponents utcComponents = new UtcComponents { Year = 2022, Day = 1, Month = 1, Hours = 0 };
+
+            UtcComponents resultUtcComponent = DateTimeOperation.Execute("now()+1C", utcComponents);
+
+            Assert.Equal(utcComponents.Day + 10, resultUtcComponent.Day);
+            Assert.Equal(utcComponents.Hours + 12, resultUtcComponent.Hours);
+        }
+
+        [Fact]
+        public void AddTwoCovidIsolationPeriods()
+        {
+            UtcComponents utcComponents = new UtcComponents { Year = 2022, Day = 1, Month = 1, Hours = 0 };
+
+            UtcComponents resultUtcComponent = DateTimeOperation.Execute("now()+2C", utcComponents);
+
+            Assert.Equal(utcComponents.Day + 21, resultUtcComponent.Day);
+            Assert.Equal(utcComponents.Hours, resultUtcComponent.Hours);
         }
     }
 }

@@ -7,15 +7,28 @@ namespace TechTest
 {
     public static class DateTimeOperation
     {
+        private const string covidIsolationSymbol = "C";
+
+        private struct TokenOperation
+        {
+            public int count;
+            public string unit;
+        }
+
+        private static Dictionary<string, List<TokenOperation>> tokens = new Dictionary<string, List<TokenOperation>>
+        {
+            { covidIsolationSymbol, new List<TokenOperation> { new TokenOperation { count = 10, unit = "d" }, new TokenOperation { count = 12, unit = "h" } } }
+        };
+
         /// <summary>
         /// Used validate format and extract the operations and snap settings.
         /// </summary>
-        private static Regex parseAllComponentsRegex = new Regex("(now\\(\\))((?<operations>[+-]\\d+(mon\\.?|[smhdy]))+)?(@)?(?<snap>((mon\\.?|[smhdy])))?", RegexOptions.IgnoreCase);
+        private static Regex parseAllComponentsRegex = new Regex("(now\\(\\))((?<operations>[+-]\\d+(mon\\.?|[smhdyC]))+)?(@)?(?<snap>((mon\\.?|[smhdy])))?", RegexOptions.IgnoreCase);
 
         /// <summary>
         /// Used to extract the individual operations and their components from the list of operations obtained using the parseAllComponentsRegex call.
         /// </summary>
-        private static Regex parseOperationRegex = new Regex("(?<operator>[+-])(?<count>\\d+)(?<unit>(mon\\.?|[smhdy]))", RegexOptions.IgnoreCase);
+        private static Regex parseOperationRegex = new Regex("(?<operator>[+-])(?<count>\\d+)(?<unit>(mon\\.?|[smhdyC]))", RegexOptions.IgnoreCase);
 
         public class InvalidOperationException : Exception { }
 
@@ -132,14 +145,32 @@ namespace TechTest
                     throw new InvalidOperationException();
                 }
 
-                ParseOperationResult.Operation operation = new ParseOperationResult.Operation()
-                {
-                    Operator = operationMatch.Groups["operator"].Value,
-                    Count = int.Parse(operationMatch.Groups["count"].Value),
-                    Unit = operationMatch.Groups["unit"].Value,
-                };
+                string unit = operationMatch.Groups["unit"].Value;
 
-                parseOperationResult.Operations.Add(operation);
+                if (tokens.ContainsKey(unit))
+                {
+                    string oper = operationMatch.Groups["operator"].Value;
+                    int count = int.Parse(operationMatch.Groups["count"].Value);
+
+                    for (int i = 0; i < count; i++)
+                    {
+                        foreach (TokenOperation tokenOperation in tokens[unit])
+                        {
+                            parseOperationResult.Operations.Add(new ParseOperationResult.Operation { Operator = oper, Count = tokenOperation.count, Unit = tokenOperation.unit });
+                        }
+                    }
+                }
+                else
+                {
+                    ParseOperationResult.Operation operation = new ParseOperationResult.Operation()
+                    {
+                        Operator = operationMatch.Groups["operator"].Value,
+                        Count = int.Parse(operationMatch.Groups["count"].Value),
+                        Unit = operationMatch.Groups["unit"].Value,
+                    };
+
+                    parseOperationResult.Operations.Add(operation);
+                }
             }
 
             return parseOperationResult;
